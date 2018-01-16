@@ -13,5 +13,8 @@ data = json.loads(r.text)
 
 
 for order in data:
-    print((order['name'],order['download_url']))
-
+    print((order['name'],order['size']))
+    req_data = requests.get(order['download_url'],auth=(usr,pss),stream=True)
+    with open(order['name']+'.zip','wb') as handle:
+        for block in req_data.iter_content(1024):
+            handle.write(block)

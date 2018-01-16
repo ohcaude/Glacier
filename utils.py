@@ -81,12 +81,10 @@ def stitchScene(image_files,resolution):
     #lon_grid = np.linspace(max(lon),min(lon),resolution)
     imnew = np.zeros((lat_grid.size,lon_grid.size,3))
     weights = np.zeros((lat_grid.size,lon_grid.size))
-    print(imnew.shape)
     for c,f in zip(range(len(image_files)),image_files):
-        print(f)
+        print('('+str(c)+'/'+str(len(image_files))+') '+ f)
         lat,lon = GetCornerCoordinates(f)
         imshot = imread(f)
-        print(imshot.shape)
         latp = np.linspace(max(lat),min(lat),imshot.shape[0])
         lonp = np.linspace(min(lon),max(lon),imshot.shape[1])
         for ch in range(imshot.shape[-1]):
@@ -97,9 +95,9 @@ def stitchScene(image_files,resolution):
     weights = np.stack((weights,weights,weights),axis=-1)
     weights[np.where(weights==0)]=1
     
-    elF,eldata = getElevation()
-    elevation = np.flip(elF(lon_grid,lat_grid),axis=0)
-    return np.flip(np.divide(imnew,weights),axis=0),elevation,(lat_grid,lon_grid),eldata
+#    elF,eldata = getElevation()
+#    elevation = np.flip(elF(lon_grid,lat_grid),axis=0)
+    return np.flip(np.divide(imnew,weights),axis=0),(lat_grid,lon_grid)#,elevation,eldata
 
 def getShade(el,sun_elevation,sun_azimuth):
     gr = np.gradient(gaussian(rotate(el,sun_azimuth),sigma=2),10,axis=0)

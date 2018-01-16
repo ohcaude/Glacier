@@ -1,0 +1,36 @@
+import json
+import requests 
+from skimage.io import imsave
+from skimage.exposure import rescale_intensity
+from utils import stitchScene
+from os.path import isfile
+
+url = 'https://api.planet.com/v0/orders/'
+usr = '69c1c54d10324eb58c5677cc8737fc0c'
+pss = 'ocbiYWN5S6D2'
+r = requests.get(url, auth=(usr,pss))
+
+print(r.headers)
+#print(r.text) # or r.json()
+
+data = json.loads(r.text)
+#print(data)
+for order in data:
+    if not 'RapidEye' in order['products'][0]['item_id']:
+        if order['name']=='ReferenceJul6':
+            continue
+        im_id = order['products'][0]['item_id'][0:15]
+        if im_id=='20170929_175008':
+            continue
+        out_file = './high_res/'+im_id+'.png'
+        if isfile(out_file):
+            continue 
+        print(im_id)
+        file_list = []
+        for shot in order['products']:
+            file_list.append(shot['item_id']+'/'+shot['item_id']+'_3B_Analytic.tif')
+        im,grid = stitchScene(file_list,[3, 3]) 
+        #print(shot['item_id']+'/'+shot['item_id']+'_metadata.json')
+        im_display = rescale_intensity(im,out_range=(0,255)).astype('uint8')
+        imsave(out_file,im_display)
+        print('Image saved in ' + out_file)
