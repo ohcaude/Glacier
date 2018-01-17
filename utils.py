@@ -57,8 +57,8 @@ def GetCornerCoordinates(FileName):
     return dCornerLats, dCornerLons
 
 def getElevation():
-    lat,lon = GetCornerCoordinates('/Users/oriol/Downloads/ASTGTM2_N48W114/ASTGTM2_N48W114_dem.tif')
-    eldata = imread('/Users/oriol/Downloads/ASTGTM2_N48W114/ASTGTM2_N48W114_dem.tif')
+    lat,lon = GetCornerCoordinates('data/elevation/ASTGTM2_N48W114_dem.tif')
+    eldata = imread('data/elevation/ASTGTM2_N48W114_dem.tif')
     latp = np.linspace(max(lat),min(lat),eldata.shape[0])
     lonp = np.linspace(min(lon),max(lon),eldata.shape[1])
     f = interp2d(lonp,latp,eldata)
@@ -95,9 +95,9 @@ def stitchScene(image_files,resolution):
     weights = np.stack((weights,weights,weights),axis=-1)
     weights[np.where(weights==0)]=1
     
-#    elF,eldata = getElevation()
-#    elevation = np.flip(elF(lon_grid,lat_grid),axis=0)
-    return np.flip(np.divide(imnew,weights),axis=0),(lat_grid,lon_grid)#,elevation,eldata
+    elF,eldata = getElevation()
+    elevation = np.flip(elF(lon_grid,lat_grid),axis=0)
+    return np.flip(np.divide(imnew,weights),axis=0),(lat_grid,lon_grid),elevation,eldata
 
 def getShade(el,sun_elevation,sun_azimuth):
     gr = np.gradient(gaussian(rotate(el,sun_azimuth),sigma=2),10,axis=0)

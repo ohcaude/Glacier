@@ -4,6 +4,7 @@ from skimage.io import imsave
 from skimage.exposure import rescale_intensity
 from utils import stitchScene
 from os.path import isfile
+import pickle as pkl
 
 url = 'https://api.planet.com/v0/orders/'
 usr = '69c1c54d10324eb58c5677cc8737fc0c'
@@ -23,14 +24,17 @@ for order in data:
         if im_id=='20170929_175008':
             continue
         out_file = './high_res/'+im_id+'.png'
+        out_el = './elevation/'+im_id+'.pckl'
         if isfile(out_file):
             continue 
         print(im_id)
         file_list = []
         for shot in order['products']:
-            file_list.append(shot['item_id']+'/'+shot['item_id']+'_3B_Analytic.tif')
-        im,grid = stitchScene(file_list,[3, 3]) 
-        #print(shot['item_id']+'/'+shot['item_id']+'_metadata.json')
+            file_list.append('data/'+shot['item_id']+'/'+shot['item_id']+'_3B_Analytic.tif')
+        im,grid,el,eldata = stitchScene(file_list,[3, 3]) 
+        print(shot['item_id']+'/'+shot['item_id']+'_metadata.json')
         im_display = rescale_intensity(im,out_range=(0,255)).astype('uint8')
         imsave(out_file,im_display)
+        pkl.dump(el, open( out_el, "wb" ) )
         print('Image saved in ' + out_file)
+        print('Elevation data saved in ' + out_el)
