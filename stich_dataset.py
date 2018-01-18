@@ -23,15 +23,20 @@ for order in data:
         im_id = order['products'][0]['item_id'][0:15]
         if im_id=='20170929_175008':
             continue
-        out_file = './high_res/'+im_id+'.png'
+        out_file = './rec_images/'+im_id+'.png'
         out_el = './elevation/'+im_id+'.pckl'
+        out_info = './info/'+im_id+'.pckl'
         if isfile(out_file):
             continue 
         print(im_id)
         file_list = []
         for shot in order['products']:
             file_list.append('data/'+shot['item_id']+'/'+shot['item_id']+'_3B_Analytic.tif')
-        im,grid,el,eldata = stitchScene(file_list,[3, 3]) 
+        im,grid,el,eldata = stitchScene(file_list,[10, 10]) 
+        jsonfile = open('data/'+shot['item_id']+'/'+shot['item_id']+'_metadata.json').read()
+        dataform = jsonfile.strip("'<>() ").replace('\'', '\"')
+        struct = json.loads(dataform)
+        pkl.dump(struct,open(out_info,"wb"))
         print(shot['item_id']+'/'+shot['item_id']+'_metadata.json')
         im_display = rescale_intensity(im,out_range=(0,255)).astype('uint8')
         imsave(out_file,im_display)
